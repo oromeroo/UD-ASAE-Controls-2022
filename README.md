@@ -4,11 +4,15 @@ This is the repository for the UD ASAE Advanced Class Plane Controls Team for th
 
 
 # Controls Team
-Evan Eng (Captain) \n
-Andrew Brillante \n
-Christoper Calandra \n
-Nikki Pilla \n
-Omar Romero \n
+Evan Eng (Captain)
+
+Andrew Brillante
+
+Christoper Calandra
+
+Nikki Pilla
+
+Omar Romero
 
 # Plane Requirements
 
