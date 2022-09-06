@@ -5,7 +5,7 @@ This is the repository for the UD ASAE Advanced Class Plane Controls Team for th
 
 # Controls Team
 
-#Plane Requirements
+# Plane Requirements
 
 
-#Files & Directories Descriptions 
+# Files & Directories Descriptions 
