@@ -1,9 +1,11 @@
 
 #include "Adafruit_BMP3XX.h"
 
-#define SEALEVELPRESSURE_HPA (1013.25) 
+#define SEALEVELPRESSURE_HPA (1008.47) 
 /* The Avgerage pressure at mean sea-level (MSL) 
 in the International Standard Atmosphere (ISA) is 1013.25 hPa = 1 atm
+
+Sea-level pressure in Delaware is 1008.47 hpa and is used for this code 
 */
 
 Adafruit_BMP3XX bmp;
