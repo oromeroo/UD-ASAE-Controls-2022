@@ -1,6 +1,6 @@
 /* 
  *  ASAE 2022-2023 Controls Team "main plane" On-board DAS
- *  Team: Evan Eng (Captain), Chris Calandra, Omar Romero, Andrew
+ *  Team: Evan Eng (Captain), Andrew Brillante, Christopher Calandra, Nikki Pilla, and Omar Romero
  *  Github for 2022-2023: https://github.com/christophercalandra/UD-ASAE-Controls-2022
  *  Github fot 2021-2022: https://github.com/fdoyle6/UD-ASAE-Controls-2021
  *  Github for 2020-2021: https://github.com/FirkinTage/UDASAE_Controls
