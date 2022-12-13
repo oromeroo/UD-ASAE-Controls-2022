@@ -11,6 +11,6 @@ Nikki Pilla
 Omar Romero (https://github.com/oromeroo)  
 
 ## Plane Requirements
-
+https://github.com/christophercalandra/UD-ASAE-Controls-2022/blob/main/SAE_AeroDesign_2023_Rules.pdf  
 
 ## Files & Directories Descriptions 
