@@ -15,6 +15,6 @@ https://github.com/christophercalandra/UD-ASAE-Controls-2022/blob/main/SAE_AeroD
 
 ## Files & Directories Descriptions 
 
-**GUI** 
+**GUI**  
 **Ground Station**  
 **DAS**  
