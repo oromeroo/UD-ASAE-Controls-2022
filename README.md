@@ -14,3 +14,7 @@ Omar Romero (https://github.com/oromeroo)
 https://github.com/christophercalandra/UD-ASAE-Controls-2022/blob/main/SAE_AeroDesign_2023_Rules.pdf  
 
 ## Files & Directories Descriptions 
+
+**GUI** 
+**Ground Station**  
+**DAS**  
