@@ -1,0 +1,363 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow
+from PyQt5.QtGui import *
+import sys
+import serial
+
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+
+from threading import Thread
+from math import *
+import sys
+import os
+import io
+import serial as sr
+import time
+import threading
+import csv
+global ser
+
+ser = serial.Serial('COM4', baudrate=9600, timeout=10,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE,
+                    bytesize=serial.EIGHTBITS
+                    )
+
+listValues = []
+listInFloats = []
+roll = 0.0
+pitch = 0.0
+yaw = 0.0
+
+class Ui_MainWindowTest(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(1532, 957)
+        hbox = QtWidgets.QHBoxLayout()
+
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setStyleSheet("background: white\n""")
+        self.centralwidget.setObjectName("centralwidget")
+
+        self.gridLayoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, 1400, 800))
+        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+
+        self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setObjectName("gridLayout")
+
+        #Creating categories for parameters (e.g. PADA, GPS and Plane)
+        self.padaTitle = QtWidgets.QLabel(self.centralwidget)
+        self.padaTitle.setFont(QFont('Arial', 40))
+        self.padaTitle.setAlignment(QtCore.Qt.AlignBottom)
+        self.padaTitle.setObjectName("padaTitle")
+        self.gridLayout.addWidget(self.padaTitle, 0, 2, 1, 1)
+
+        self.GPSTitle = QtWidgets.QLabel(self.centralwidget)
+        self.GPSTitle.setFont(QFont('Times', 40))
+        self.GPSTitle.setAlignment(QtCore.Qt.AlignBottom)
+        self.GPSTitle.setObjectName("GPSTitle")
+        self.gridLayout.addWidget(self.GPSTitle, 0, 1, 1, 1)
+
+        self.planeTitle = QtWidgets.QLabel(self.centralwidget)
+        self.planeTitle.setFont(QFont('Times', 40))
+        self.planeTitle.setAlignment(QtCore.Qt.AlignBottom)
+        self.planeTitle.setObjectName("planeTitle")
+        self.gridLayout.addWidget(self.planeTitle, 0, 0, 1, 1)
+
+        self.dropTitle = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.dropTitle.setFont(font)
+        self.dropTitle.setAlignment(QtCore.Qt.AlignLeft)
+        self.dropTitle.setObjectName("PDHTitle")
+        self.gridLayout.addWidget(self.dropTitle, 3, 2, 1, 1)
+
+        self.AltTitle = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.AltTitle.setFont(font)
+        self.AltTitle.setAlignment(QtCore.Qt.AlignTop)
+        self.AltTitle.setObjectName("AltTitle")
+        self.gridLayout.addWidget(self.AltTitle, 1, 2, 1, 1)
+
+        self.RollTitle = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.RollTitle.setFont(font)
+        self.RollTitle.setAlignment(QtCore.Qt.AlignLeft)
+        self.RollTitle.setObjectName("RollTitle")
+        self.gridLayout.addWidget(self.RollTitle, 1, 0, 1, 1)
+
+        self.PitchTitle = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.PitchTitle.setFont(font)
+        self.PitchTitle.setAlignment(QtCore.Qt.AlignLeft)
+        self.PitchTitle.setObjectName("PitchTitle")
+        self.gridLayout.addWidget(self.PitchTitle, 3, 0, 1, 1)
+
+        self.YawTitle = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.YawTitle.setFont(font)
+        self.YawTitle.setAlignment(QtCore.Qt.AlignLeft)
+        self.YawTitle.setObjectName("YawTitle")
+        self.gridLayout.addWidget(self.YawTitle, 5, 0, 1, 1)
+
+        self.VelTitle = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.VelTitle.setFont(font)
+        self.VelTitle.setAlignment(QtCore.Qt.AlignLeft)
+        self.VelTitle.setObjectName("VelTitle")
+        self.gridLayout.addWidget(self.VelTitle, 8, 0, 1, 1)
+
+        self.LongitudeTitle = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.LongitudeTitle.setFont(font)
+        self.LongitudeTitle.setAlignment(QtCore.Qt.AlignLeft)
+        self.LongitudeTitle.setObjectName("LongitudeTitle")
+        self.gridLayout.addWidget(self.LongitudeTitle, 1, 1, 1, 1)
+
+        self.LatitudeTitle = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.LatitudeTitle.setFont(font)
+        self.LatitudeTitle.setAlignment(QtCore.Qt.AlignLeft)
+        self.LatitudeTitle.setObjectName("LatitudeTitle")
+        self.gridLayout.addWidget(self.LatitudeTitle, 3, 1, 1, 1)
+
+        self.dropValue = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift Light Condensed")
+        font.setPointSize(60)
+        self.dropValue.setFont(font)
+        self.dropValue.setAlignment(QtCore.Qt.AlignLeft)
+        self.dropValue.setObjectName("PDHValue")
+        self.gridLayout.addWidget(self.dropValue, 4, 2, 1, 1)
+
+        self.AltValue = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift Light Condensed")
+        font.setPointSize(60)
+        self.AltValue.setFont(font)
+        self.AltValue.setAlignment(QtCore.Qt.AlignLeft)
+        self.AltValue.setObjectName("AltValue")
+        self.gridLayout.addWidget(self.AltValue, 2, 2, 1, 1)
+
+        self.RollValue = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift Light Condensed")
+        font.setPointSize(60)
+        self.RollValue.setFont(font)
+        self.RollValue.setAlignment(QtCore.Qt.AlignLeft)
+        self.RollValue.setObjectName("RollValue")
+        self.gridLayout.addWidget(self.RollValue, 2, 0, 1, 1)
+
+        self.PitchValue = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift Light Condensed")
+        font.setPointSize(60)
+        self.PitchValue.setFont(font)
+        self.PitchValue.setAlignment(QtCore.Qt.AlignLeft)
+        self.PitchValue.setObjectName("PitchValue")
+        self.gridLayout.addWidget(self.PitchValue, 4, 0, 1, 1)
+
+        self.YawValue = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift Light Condensed")
+        font.setPointSize(60)
+        self.YawValue.setFont(font)
+        self.YawValue.setAlignment(QtCore.Qt.AlignLeft)
+        self.YawValue.setObjectName("YawValue")
+        self.gridLayout.addWidget(self.YawValue, 6, 0, 2, 2)
+
+        self.VelValue = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift Light Condensed")
+        font.setPointSize(60)
+        self.VelValue.setFont(font)
+        self.VelValue.setAlignment(QtCore.Qt.AlignLeft)
+        self.VelValue.setObjectName("VelValue")
+        self.gridLayout.addWidget(self.VelValue, 9, 0, 1, 1)
+
+        self.LongitudeValue = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift Light Condensed")
+        font.setPointSize(60)
+        self.LongitudeValue.setFont(font)
+        self.LongitudeValue.setAlignment(QtCore.Qt.AlignLeft)
+        self.LongitudeValue.setObjectName("LongitudeValue")
+        self.gridLayout.addWidget(self.LongitudeValue, 2, 1, 1, 1)
+
+        self.LatitudeValue = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift Light Condensed")
+        font.setPointSize(60)
+        self.LatitudeValue.setFont(font)
+        self.LatitudeValue.setAlignment(QtCore.Qt.AlignLeft)
+        self.LatitudeValue.setObjectName("LatitudeValue")
+        self.gridLayout.addWidget(self.LatitudeValue, 4, 1, 1, 1)
+
+        self.gridLayout.setRowStretch(0, 2)
+        self.gridLayout.setRowStretch(1, 0)
+        self.gridLayout.setRowStretch(2, 0)
+        self.gridLayout.setRowStretch(3, 0)
+        self.gridLayout.setRowStretch(4, 0)
+        self.gridLayout.setRowStretch(5, 0)
+        self.gridLayout.setRowStretch(6, 0)
+        self.gridLayout.setRowStretch(7, 0)
+        self.gridLayout.setRowStretch(8, 0)
+        self.gridLayout.setRowStretch(9, 0)
+        self.gridLayout.setRowStretch(10, 0)
+        self.gridLayout.setRowStretch(11, 1)
+        #self.gridLayout.setColumnStretch(3, 1)
+
+        self.StopButton = QtWidgets.QPushButton(self.centralwidget)
+        self.StopButton.setGeometry(QtCore.QRect(440, 640, 361, 31))
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        font.setBold(True)
+        font.setWeight(75)
+        self.StopButton.setFont(font)
+        self.StopButton.setStyleSheet("background: rgb(255, 0, 0)")
+        self.StopButton.setObjectName("StopButton")
+        self.gridLayout.addWidget(self.StopButton, 10, 1, 1, 1)
+
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateMWTest(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateMWTest(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "DAS GUI"))
+
+        #Creating Categories
+        self.padaTitle.setText(_translate("MainWindow", "PADA"))
+        self.GPSTitle.setText(_translate("MainWindow", "GPS"))
+        self.planeTitle.setText(_translate("MainWindow", "Plane"))
+
+        #Creating Parameters
+        self.dropTitle.setText(_translate("MainWindow", "Drop (ft)"))
+        self.AltTitle.setText(_translate("MainWindow", "Altitude (ft)"))
+        self.VelTitle.setText(_translate("MainWindow", "Velocity (mph)"))
+        self.RollTitle.setText(_translate("MainWindow", "Roll (deg)"))
+        self.PitchTitle.setText(_translate("MainWindow", "Pitch (deg)"))
+        self.YawTitle.setText(_translate("MainWindow", "Yaw (deg)"))
+        self.LongitudeTitle.setText(_translate("MainWindow", "Longitude (deg)"))
+        self.LatitudeTitle.setText(_translate("MainWindow", "Latitude (deg)"))
+
+        #Creating Values
+        self.dropValue.setText(_translate("MainWindow", "0"))
+        self.AltValue.setText(_translate("MainWindow", "0"))
+        self.VelValue.setText(_translate("MainWindow", "0"))
+        self.RollValue.setText(_translate("MainWindow", "0"))
+        self.PitchValue.setText(_translate("MainWindow", "0"))
+        self.YawValue.setText(_translate("MainWindow", "0"))
+        self.LongitudeValue.setText(_translate("MainWindow", "0"))
+        self.LatitudeValue.setText(_translate("MainWindow", "0"))
+
+        self.StopButton.setText(_translate("MainWindow", "Stop Data"))
+
+        self.timeout = 0
+        self.check_serial_event()
+
+    def check_serial_event(self):
+        self.timeout += 1
+        self.count = 0
+        serial_thread = threading.Timer(1, self.check_serial_event)
+        if ser.is_open == True:
+            serial_thread.start()
+            if ser.in_waiting:
+                eol = b'\n'
+                leneol = len(eol)
+                line = bytearray()
+                while True:
+                    c = ser.read(1)
+                    if c:
+                        line += c
+                        if line[-leneol:] == eol:
+                            break
+                    else:
+                        break
+                line = line.rstrip()
+                arduinoData = line.decode("utf-8")
+                listValues = arduinoData.split(',')
+                alt = listValues[0]
+                accX = float(listValues[1])
+                accY = float(listValues[2])
+                accZ = float(listValues[3])
+                magX = float(listValues[4])
+                magY = float(listValues[5])
+                magZ = float(listValues[6])
+                latDeg = float(listValues[7])
+                latDeg /= 1000000000
+                longDeg = float(listValues[8])
+                longDeg /= 1000000000
+                velocity = float(listValues[9])
+
+                pitch = 180 * atan2(accX, sqrt(accY * accY + accZ * accZ)) / pi
+                roll = 180 * atan2(accY, sqrt(accX * accX + accZ * accZ)) / pi
+                mag_x = magX * cos(pitch) + magY * sin(roll) * sin(pitch) + magZ * cos(roll) * sin(pitch)
+                mag_y = magY * cos(roll) - magZ * sin(roll)
+                yaw = 180 * atan2(-mag_y, mag_x) / pi
+
+                #if float(listValues[10]) == 0.0:
+                    #while self.count < 1:
+                        #altList = []
+                        #altList.append(alt)
+                        #self.dropValue.setText(altList[0])
+                        #self.count += 1
+
+                self.AltValue.setText(alt)
+                self.RollValue.setText("%.2f" % roll)
+                self.PitchValue.setText("%.2f" % pitch)
+                self.YawValue.setText("%.2f" % yaw)
+                self.LatitudeValue.setText("%.6f" % latDeg)
+                self.LongitudeValue.setText("%.6f" % longDeg)
+                self.VelValue.setText("%.2f" % velocity)
+                self.timeout = 0
+
+        if self.timeout >= 10:
+            ser.close()
+
+class MainWindow(QMainWindow):
+    def __init__(self, width, height):
+        super(MainWindow, self).__init__()
+        self.width = width
+        self.height = height
+        self.main_ui = Ui_MainWindowTest()
+        self.main_ui.setupUi(self)
+
+        #self.GPS = Widget(self.width,self.height)
+        #if(playBackMode):
+            #print("Rerunning last flight")
+            #self.Playback = PlayBack(self)
+            #self.Playback.start()
+        #else:
+            #print("Beginning new flight")
+            #self.DataHandler = DataHandler(self)
+            #self.DataHandler.start()
+            #self.main_ui.StopButton.clicked.connect(self.DataHandler.stop)
+
+def main():
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"]='1'
+    app = QApplication(sys.argv)
+    screen_resolution = app.desktop().screenGeometry()
+    width,height = screen_resolution.width(), screen_resolution.height()
+    win = MainWindow(width, height)
+    win.show()
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
