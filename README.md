@@ -6,9 +6,9 @@ This is the repository for the UD ASAE Advanced Class Plane Controls Team for th
 ## Controls Team
 Evan Eng (Captain)  
 Andrew Brillante  
-Christopher Calandra (https://github.com/christophercalandra)
+Christopher Calandra (https://github.com/christophercalandra)  
 Nikki Pilla  
-Omar Romero (https://github.com/oromeroo)
+Omar Romero (https://github.com/oromeroo)  
 
 ## Plane Requirements
 
